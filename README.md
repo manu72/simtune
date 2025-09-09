@@ -10,38 +10,66 @@ Over time, your Simtune becomes a unique voice or author that improves through f
 
 The goal of Simtune is to democratise finetuning. Anyone, not just developers, should be able to:
 
-- Collect and structure a small dataset of writing samples.
-- Fine-tune an existing large language model (LLM) into a personal voice or author.
-- Generate content that reflects their voice: blog posts, articles, essays, or even books.
-- Provide feedback on drafts and see the author evolve continuously.
+- Create a knowledge base of pdfs
+- Transform the knowledge base into a vector database
+- Transform the vector database into a correctly formatted training dataset
+- Submit that dataset to any LLM for finetuning
+- Fine-tune an existing large language model (LLM) into a domain-specific expert based on the knowledge base.
+- Query the custom LLM about domain-specific knowledge
+- Maintain and update the custom finetuned LLM with additional knowledge
+- Provide feedback on responses and see the custom LLM evolve continuously.
 
 ---
 
-## Features (Stage 1)
+## Features (Stage 1 + 1B)
 
-- **Dataset Builder**: Guided prompts help you prepare a small training dataset in the correct format for the LLM.
-- **Fine-Tune Runner**: Simple CLI to start a finetuning job with a commercial LLM.
-- **Author Runtime**: Generate drafts from your tuned author with a single command.
-- **Content Persistence**: All generated content is automatically saved as markdown files with metadata.
-- **Feedback Loop**: Rate or edit drafts, turning feedback into new training examples.
+### Foundation (Stage 1)
+
+- **CLI Framework**: User-friendly terminal interface with rich formatting and interactive prompts.
+- **Core Data Models**: Robust data validation and storage for profiles, datasets, and fine-tuning jobs.
+- **LLM Integration**: Seamless integration with commercial LLM providers (OpenAI, Gemini).
+- **Local Storage**: File-based data persistence with JSON, YAML, and JSONL formats.
+
+### Knowledge Base Features (Stage 1B)
+
+- **PDF Knowledge Import**: Upload and process PDF documents to build domain-specific knowledge bases.
+- **Vector Database**: Transform documents into searchable embeddings for intelligent content retrieval.
+- **Domain Dataset Generation**: Automatically create fine-tuning datasets from knowledge base content.
+- **Expert Model Creation**: Fine-tune LLMs to become domain-specific experts rather than writing style mimics.
+- **Knowledge Querying**: Query domain experts with context-aware responses backed by source documents.
+- **Content Persistence**: All generated content saved with source attribution and metadata tracking.
 
 ---
 
 ## Roadmap
 
-### Stage 1: Terminal based POC
+### Stage 1: Terminal based POC (Foundation)
 
-- CLI tool for dataset building, validation, and fine-tuning.
-- Adaptor for a single commercial provider (OpenAI or Gemini).
-- Feedback mechanism for turning edits into new examples.
-- Local storage of datasets (.jsonl) and author profiles.
+- CLI framework with Typer and Rich for user-friendly terminal interface.
+- Core data models and storage system for profiles and datasets.
+- LLM adapter foundation for single commercial provider (OpenAI).
+- Basic fine-tuning workflow and job management infrastructure.
+- Local file-based storage system (.jsonl, .json, .yml formats).
+
+### Stage 1B: Knowledge Base Realignment
+
+- **PDF Knowledge Base Import**: CLI commands to import and process PDF documents. Docling will be used to prepare the pdfs.
+- **Vector Database Integration**: Transform PDFs into searchable vector embeddings using ChromaDB or similar.
+- **Domain Dataset Generation**: Intelligent conversion of vector database into fine-tuning datasets.
+- **Knowledge Expert Models**: Fine-tune LLMs as domain-specific experts rather than writing style mimics.
+- **Knowledge Querying System**: Query fine-tuned models about domain-specific topics with context retrieval.
+- **Knowledge Base Management**: Update, maintain, and version control knowledge bases over time.
+- **Document Processing Pipeline**: Chunking, embedding, and indexing of domain documents.
+- **Migration Tools**: Convert existing author profiles to domain expert profiles.
 
 ### Stage 2: Basic Browser UI
 
-- Minimal web interface to guide dataset creation and fine-tuning.
-- Inline editor for reviewing drafts and logging feedback.
+- Minimal web interface for knowledge base management and domain expert creation.
+- PDF upload and processing interface with progress tracking.
+- Vector database visualization and search interface.
+- Inline editor for reviewing generated content and providing domain feedback.
 - Backend built on FastAPI or Flask, frontend with React or Svelte or Streamlit.
-- users will provide their own API keys
+- Users will provide their own API keys.
 
 ### Stage 3: Multiple model support
 
@@ -52,14 +80,16 @@ The goal of Simtune is to democratise finetuning. Anyone, not just developers, s
 ### Stage 4: Multiple user accounts
 
 - Secure account creation and login.
-- Each user has isolated storage and their own fine-tuned authors.
+- Each user has isolated storage and their own domain expert models.
 - Bring-your-own-key support for provider APIs.
+- Shared knowledge bases with permission management.
 
 ### Stage 5: Production ready UI/UX
 
-- Full author dashboard with progress tracking and dataset versioning.
-- Job queueing, monitoring, and error handling.
+- Full domain expert dashboard with progress tracking and knowledge base versioning.
+- Job queueing, monitoring, and error handling for document processing and fine-tuning.
 - Export, backup, and delete-my-data options.
+- Knowledge base analytics and domain expertise metrics.
 - Observability and cost management tools.
 
 ---
@@ -69,21 +99,41 @@ The goal of Simtune is to democratise finetuning. Anyone, not just developers, s
 ```
 simtune/
 ├── cli/                    # Typer-based CLI entrypoints
+│   ├── commands/
+│   │   ├── expert.py      # Domain expert management (Stage 1B)
+│   │   ├── knowledge.py   # Knowledge base operations (Stage 1B)
+│   │   ├── author.py      # Author profile management (preserved)
+│   │   ├── dataset.py     # Dataset building (legacy + knowledge-based)
+│   │   ├── train.py       # Fine-tuning workflows
+│   │   └── generate.py    # Content generation
+│   └── main.py
 ├── core/
 │   ├── adapters/          # openai_adapter.py, gemini_adapter.py
+│   ├── knowledge/         # PDF processing, vector DB management (Stage 1B)
+│   ├── embeddings/        # Vector embedding generation and search (Stage 1B)
+│   ├── documents/         # Document parsing and chunking (Stage 1B)
 │   ├── dataset/           # builders, validators, splitters
 │   ├── feedback/          # edit diff, new examples from feedback
-│   ├── eval/              # style metrics, safety checks
+│   ├── eval/              # style metrics, safety checks, domain expertise metrics
 │   └── prompts/           # system templates
 ├── data/
-│   └── authors/<author_id>/
+│   ├── experts/<expert_id>/     # Domain expert profiles (Stage 1B)
+│   │   ├── domain_config.yml    # Domain expertise configuration
+│   │   ├── knowledge_base/      # PDF documents and processed content
+│   │   │   ├── documents/       # Original PDF files
+│   │   │   ├── chunks/          # Processed document chunks
+│   │   │   └── vectors/         # Vector database storage
+│   │   ├── train.jsonl          # Generated training dataset
+│   │   ├── content/             # Generated content with source attribution
+│   │   └── models.json          # Fine-tune job metadata
+│   └── authors/<author_id>/     # Author profiles (preserved)
 │       ├── style_guide.yml
 │       ├── train.jsonl
-│       ├── examples/      # training examples as markdown
-│       ├── content/       # generated content as markdown
+│       ├── examples/            # training examples as markdown
+│       ├── content/             # generated content as markdown
 │       ├── edits/
-│       └── models.json    # fine-tune job metadata
-├── .env.example           # API keys and secrets
+│       └── models.json          # fine-tune job metadata
+├── .env.example                 # API keys and secrets
 ├── requirements.txt
 └── README.md
 ```
@@ -124,50 +174,75 @@ python -m cli.main init
 
 ## CLI Commands
 
-### Author Management
+### Domain Expert Management
 
 ```bash
-# Initialize a new author profile
+# Initialize a new domain expert profile
 python -m cli.main init
 
-# List all authors
+# List all domain experts
 python -m cli.main list
+
+# Create new domain expert
+python -m cli.main expert create <expert_id>
+
+# Convert author profile to domain expert
+python -m cli.main expert migrate <author_id>
 ```
 
-### Dataset Building
+### Knowledge Base Management (Stage 1B)
+
+```bash
+# Import PDF documents to knowledge base
+python -m cli.main knowledge import <expert_id> <pdf_path>
+
+# Process documents into vector database
+python -m cli.main knowledge process <expert_id>
+
+# Search knowledge base
+python -m cli.main knowledge search <expert_id> "query"
+
+# Generate training dataset from knowledge base
+python -m cli.main knowledge generate-dataset <expert_id>
+```
+
+### Dataset Building (Legacy)
 
 ```bash
 # Build training dataset interactively
-python -m cli.main dataset build <author_id>
+python -m cli.main dataset build <expert_id>
 
 # Import examples from files
-python -m cli.main dataset import <author_id> <file_path>
+python -m cli.main dataset import <expert_id> <file_path>
 ```
 
-### Fine-tuning
+### Domain Expert Fine-tuning
 
 ```bash
-# Start fine-tuning job
-python -m cli.main train start <author_id>
+# Start domain expert fine-tuning job
+python -m cli.main train start <expert_id>
 
 # Check training status
-python -m cli.main train status <author_id>
+python -m cli.main train status <expert_id>
 
 # Wait for completion
-python -m cli.main train wait <author_id>
+python -m cli.main train wait <expert_id>
 ```
 
-### Content Generation
+### Knowledge-Based Content Generation
 
 ```bash
-# Generate single piece of content
-python -m cli.main generate text <author_id> --prompt "Write about productivity"
+# Query domain expert with knowledge context
+python -m cli.main generate query <expert_id> --prompt "Explain concept X"
+
+# Generate content with source attribution
+python -m cli.main generate text <expert_id> --prompt "Write about topic Y" --with-sources
+
+# Interactive knowledge session
+python -m cli.main generate interactive <expert_id>
 
 # Disable content saving
-python -m cli.main generate text <author_id> --prompt "Quick note" --no-save
-
-# Interactive generation session
-python -m cli.main generate interactive <author_id>
+python -m cli.main generate query <expert_id> --prompt "Quick question" --no-save
 ```
 
 ---
