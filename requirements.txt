@@ -8,7 +8,7 @@ openai
 google-generativeai
 jsonlines
 PyYAML
-docling
+# docling
 
 # Testing dependencies
 pytest>=7.0.0
