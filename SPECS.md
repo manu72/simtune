@@ -13,7 +13,7 @@ This document defines the **vision, principles, architecture, feature scope, and
 
 - Every person can have their own personalised Large Language Model.
 - Anyone can create a custom vector database that LLMs can interrogate
-  \_ Anyone can finetune their own LLM with the vector knowledge base they provide
+- Anyone can finetune their own LLM with the vector knowledge base they provide
 - The AI expert improves with feedback and evolves over time.
 - The system balances **simplicity** (for non-technical users) with **rigor** (proper fine-tuning, feedback loops, safety checks).
 - Simtune is modular: CLI → browser UI → multi-model → multi-user.
@@ -181,9 +181,10 @@ This document defines the **vision, principles, architecture, feature scope, and
 
 ---
 
-## 11. Roadmap Summary
+## 11. Simtune Roadmap Summary
 
 - Stage 1: CLI proof of concept (current).
+- Stage 1B: introduction of domain expert functionality.
 - Stage 2: Browser UI.
 - Stage 3: Multi-model, local models.
 - Stage 4: Multi-user accounts.
@@ -193,9 +194,10 @@ This document defines the **vision, principles, architecture, feature scope, and
 
 ## 12. Success Criteria
 
-- A non-technical user can fine-tune a personal author in under 30 minutes.
+- A non-technical user can fine-tune a personal author or domain expert in under 30 minutes.
 - Drafts from the author reflect measurable similarity to user samples.
-- Feedback reliably improves style adherence.
+- Domain expert is knowledgeable and accurate.
+- Feedback reliably improves style adherence and domain-specific answers.
 - System is modular and extendable for new providers.
 
 ---
