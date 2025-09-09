@@ -1,6 +1,6 @@
 # Simtune Stage 1 POC - User Guide
 
-This guide will help you test the core functionality of Simtune's Stage 1 Proof of Concept. You can create a personal AI author that writes in your style through a simple 4-step process.
+This guide will help you test the core functionality of Simtune's Stage 1 Proof of Concept. You can create a personalised knowledge base expert that can be used just like a commercial LLM.
 
 ## Prerequisites
 
@@ -49,14 +49,14 @@ Start with the init command for a guided setup:
 python -m cli.main init
 ```
 
-This will walk you through creating an author profile with:
+This will walk you through creating a domain expert with:
 
 - Author name and description
 - Writing style preferences (tone, voice, formality)
 - Topics you write about
 - Style notes
 
-**Alternative**: Create an author directly:
+**Alternative**: Create an expert directly:
 
 ```bash
 python -m cli.main author create my_author --name "My Author" --description "Test author"
@@ -85,18 +85,21 @@ This opens an interactive menu where you can:
 When adding examples from writing samples or importing from files, Simtune offers two ways to create prompts:
 
 **Option 1: Write your own prompt (free)**
+
 - Manually create a prompt that would generate your writing sample
 - Full control over prompt wording and specificity
 
-**Option 2: Get AI-suggested prompt (~$0.001)**  
+**Option 2: Get AI-suggested prompt (~$0.001)**
+
 - AI analyzes your writing sample and suggests an appropriate prompt
 - Shows cost estimate before making API calls
 - You can accept, edit, or reject the AI suggestion
 - Automatically falls back to manual entry if AI fails
 
 **Example workflow:**
+
 ```
-You provide: "Working from home requires discipline. Set up a dedicated workspace, 
+You provide: "Working from home requires discipline. Set up a dedicated workspace,
 establish boundaries, and use productivity tools to stay focused."
 
 AI suggests: "Write practical tips for maintaining productivity while working from home"
@@ -126,6 +129,7 @@ Once you have at least 2 or 3 examples, you can use AI to generate additional ex
 **Cost:** Approximately $0.002-0.01 per generated example (OpenAI API charges apply)
 
 **Benefits of AI-Assisted Prompts:**
+
 - Reduces cognitive load when creating training examples
 - Generates more effective prompts than manual writing
 - Speeds up dataset building, especially for bulk text imports
@@ -311,6 +315,7 @@ Fine-tuning costs with OpenAI (as of 2024):
 - Token costs for generation: ~$0.01-0.02 per 1000 tokens
 
 **AI-assisted features:**
+
 - AI-suggested prompts: ~$0.001 per prompt suggestion
 - AI-generated examples: ~$0.002-0.01 per generated example
 - Both features show cost estimates before making API calls
