@@ -41,9 +41,7 @@ def start_training(
     # Check dataset exists
     if not dataset or dataset.size == 0:
         console.print(f"[red]No dataset found for '{author_id}'.[/red]")
-        console.print(
-            f"Use 'simtune dataset build {author_id}' to create one first."
-        )
+        console.print(f"Use 'simtune dataset build {author_id}' to create one first.")
         raise typer.Exit(1)
 
     console.print(f"[bold blue]Starting fine-tuning for: {profile.name}[/bold blue]")
@@ -94,12 +92,8 @@ def start_training(
         console.print(f"Status: {job.status.value}")
 
         console.print("\n[bold yellow]Next steps:[/bold yellow]")
-        console.print(
-            f"• Check status: [cyan]simtune train status {author_id}[/cyan]"
-        )
-        console.print(
-            f"• List all jobs: [cyan]simtune train list {author_id}[/cyan]"
-        )
+        console.print(f"• Check status: [cyan]simtune train status {author_id}[/cyan]")
+        console.print(f"• List all jobs: [cyan]simtune train list {author_id}[/cyan]")
 
         # Wait for completion if requested
         if wait:

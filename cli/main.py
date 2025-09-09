@@ -56,9 +56,7 @@ def status() -> None:
         )
         return
 
-    console.print(
-        f"\n[bold blue]Simtune Status[/bold blue] - {len(authors)} author(s)"
-    )
+    console.print(f"\n[bold blue]Simtune Status[/bold blue] - {len(authors)} author(s)")
 
     table = Table(show_header=True, header_style="bold magenta")
     table.add_column("Author", style="cyan")
@@ -111,9 +109,7 @@ def status() -> None:
         "• [cyan]simtune dataset build <author>[/cyan] - Build training dataset"
     )
     console.print("• [cyan]simtune train start <author>[/cyan] - Start fine-tuning")
-    console.print(
-        "• [cyan]simtune generate text <author>[/cyan] - Generate content"
-    )
+    console.print("• [cyan]simtune generate text <author>[/cyan] - Generate content")
 
 
 @app.command()
