@@ -2,8 +2,8 @@
 
 ## 1. Purpose
 
-Simtune exists to make personal AI authors accessible to everyone.  
-It enables non-technical users to fine-tune an LLM to reflect their own writing style, and to continuously improve the “author” via feedback.
+Simtune exists to make personalised AI-powered knowledge experts accessible to everyone.  
+It enables non-technical users to fine-tune an LLM with their own knowledge base, and to continuously improve the domain-specific expert via feedback.
 
 This document defines the **vision, principles, architecture, feature scope, and roadmap** of Simtune. It will guide developers, testers, and product managers in delivering a coherent product.
 
@@ -11,8 +11,10 @@ This document defines the **vision, principles, architecture, feature scope, and
 
 ## 2. Vision
 
-- Every person can have an AI author that writes like them.
-- The author improves with feedback and evolves over time.
+- Every person can have their own personalised Large Language Model.
+- Anyone can create a custom vector database that LLMs can interrogate
+  \_ Anyone can finetune their own LLM with the vector knowledge base they provide
+- The AI expert improves with feedback and evolves over time.
 - The system balances **simplicity** (for non-technical users) with **rigor** (proper fine-tuning, feedback loops, safety checks).
 - Simtune is modular: CLI → browser UI → multi-model → multi-user.
 
@@ -48,22 +50,35 @@ This document defines the **vision, principles, architecture, feature scope, and
 5. Feedback collection (ratings + edits).
 6. Dataset regeneration and retraining from feedback.
 
-### Stage 2 Browser UI
+### Stage 1B Knowledge Base Features
+
+- **PDF Knowledge Import**: Upload and process PDF documents to build domain-specific knowledge bases.
+- **Vector Database**: Transform documents into searchable embeddings for intelligent content retrieval.
+- **Domain Dataset Generation**: Automatically create fine-tuning datasets from knowledge base content.
+- **Expert Model Creation**: Fine-tune LLMs to become domain-specific experts rather than writing style mimics.
+- **Knowledge Querying**: Query domain experts with context-aware responses backed by source documents.
+- **Content Persistence**: All generated content saved with source attribution and metadata tracking.
+
+### Stage 2 Browser-based Interface
 
 - Basic web interface with inline editing.
-- Upload writing samples.
-- Dashboard showing fine-tune progress and draft history.
+- Upload PDFs
+- Generate vector database
+- Generate training dataset
+- Run a finetuning job succesfully
+- Dashboard showing key metrics
+- Feedback and continuous improvement over time
 
 ### Stage 3 Multi-Model
 
-- Support for OpenAI, Gemini, and local LLMs (Ollama).
+- Support for OpenAI, Gemini, and local LLMs.
 - LoRA/PEFT fine-tuning for small local models.
 - Prompt-tuned mode for models without fine-tuning.
 
 ### Stage 4 Multi-User Accounts
 
 - Authentication (passwordless, GitHub, or email).
-- Per-user isolated storage of authors and datasets.
+- Per-user isolated storage of data.
 - Bring-your-own-key support.
 
 ### Stage 5 Production UI/UX
