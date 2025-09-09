@@ -1,0 +1,9 @@
+This is the first paragraph of sample content. It contains enough text to be meaningful for testing purposes. When building datasets from text files, we need to ensure that each section has sufficient content to train the model effectively.
+
+This is a second paragraph that talks about different topics. It should be long enough to test the text splitting functionality properly. The dataset builder needs to handle various paragraph structures and content types when processing imported text files.
+
+A third paragraph with more content about various subjects. This helps test how the system handles multiple sections of text when importing from files. The content should be diverse enough to provide good training examples for the fine-tuning process.
+
+Short paragraph for edge case testing.
+
+This final paragraph concludes our sample text with additional meaningful content that can be used for comprehensive testing of the import functionality. It demonstrates how the system should handle longer documents with multiple distinct sections that can be converted into training examples.

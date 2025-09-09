@@ -1,0 +1,10 @@
+{
+  "id": "file-test123",
+  "object": "file",
+  "bytes": 1024,
+  "created_at": 1672531200,
+  "filename": "train.jsonl",
+  "purpose": "fine-tune",
+  "status": "processed",
+  "status_details": null
+}

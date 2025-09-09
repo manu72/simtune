@@ -1,0 +1,20 @@
+{
+  "id": "ft-job-test123",
+  "object": "fine_tuning.job",
+  "created_at": 1672531200,
+  "finished_at": null,
+  "model": "gpt-3.5-turbo",
+  "fine_tuned_model": null,
+  "organization_id": "org-test123",
+  "result_files": [],
+  "status": "validating_files",
+  "validation_file": null,
+  "training_file": "file-test123",
+  "hyperparameters": {
+    "n_epochs": "auto",
+    "batch_size": "auto",
+    "learning_rate_multiplier": "auto"
+  },
+  "trained_tokens": null,
+  "error": null
+}

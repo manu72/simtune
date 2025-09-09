@@ -1,0 +1,7 @@
+[bandit]
+exclude: /tests,/.venv,/build,/dist
+skips: B101,B601,B602
+
+# B101: Test for use of assert
+# B601: paramiko calls - not applicable 
+# B602: subprocess_popen_with_shell_equals_true - we control shell commands in tests

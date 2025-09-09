@@ -1,0 +1,16 @@
+{
+  "author_id": "tech_writer",
+  "name": "Technical Writer",
+  "description": "A professional technical writer specializing in software documentation and developer content",
+  "style_guide": {
+    "tone": "professional",
+    "voice": "second_person",
+    "formality": "moderate",
+    "length_preference": "medium",
+    "topics": ["software development", "APIs", "documentation", "developer tools"],
+    "avoid_topics": ["personal opinions", "controversial subjects"],
+    "writing_style_notes": "Clear, concise, and action-oriented. Uses examples and code snippets when relevant."
+  },
+  "created_at": "2023-01-01T12:00:00",
+  "updated_at": "2023-01-01T12:00:00"
+}

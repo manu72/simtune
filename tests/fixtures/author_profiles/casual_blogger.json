@@ -1,0 +1,16 @@
+{
+  "author_id": "casual_blogger",
+  "name": "Casual Blogger",
+  "description": "A lifestyle blogger with a casual, friendly writing style",
+  "style_guide": {
+    "tone": "casual",
+    "voice": "first_person",
+    "formality": "informal",
+    "length_preference": "medium",
+    "topics": ["lifestyle", "productivity", "personal development", "travel"],
+    "avoid_topics": ["technical jargon", "overly formal content"],
+    "writing_style_notes": "Conversational tone, uses personal anecdotes, and includes occasional humor. Writes like talking to a friend."
+  },
+  "created_at": "2023-01-15T10:30:00",
+  "updated_at": "2023-01-15T10:30:00"
+}

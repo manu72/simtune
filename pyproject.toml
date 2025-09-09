@@ -1,0 +1,246 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simtune"
+version = "0.1.0"
+description = "Personal AI Writing Assistant - Fine-tune LLMs with your writing style"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    {name = "Simtune Project"}
+]
+keywords = ["ai", "writing", "fine-tuning", "llm", "personal-assistant"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Text Processing :: Linguistic",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "typer",
+    "rich",
+    "pydantic",
+    "pydantic-settings", 
+    "httpx",
+    "python-dotenv",
+    "openai",
+    "google-generativeai",
+    "jsonlines",
+    "PyYAML",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0.0",
+    "pytest-mock>=3.10.0",
+    "pytest-cov>=4.0.0",
+    "pytest-typer>=0.2.0",
+    "responses>=0.23.0",
+    "freezegun>=1.2.0",
+]
+dev = [
+    "flake8>=6.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.0.0",
+    "types-PyYAML>=6.0.0",
+    "bandit>=1.7.0",
+]
+
+[project.scripts]
+simtune = "cli.main:app"
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | __pycache__
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["core", "cli"]
+known_third_party = [
+    "typer", "rich", "pydantic", "httpx", "openai", 
+    "pytest", "responses", "freezegun"
+]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = [
+    "E203",  # whitespace before ':'
+    "E501",  # line too long (handled by black)
+    "W503",  # line break before binary operator
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+]
+per-file-ignores = [
+    "__init__.py:F401",  # Allow unused imports in __init__.py
+    "tests/*:F401,F811",  # Allow unused imports and redefined names in tests
+]
+
+[tool.mypy]
+python_version = "3.9"
+explicit_package_bases = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+ignore_missing_imports = true
+no_strict_optional = true
+
+[[tool.mypy.overrides]]
+module = [
+    "tests.*",
+    "conftest",
+]
+ignore_errors = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--strict-config", 
+    "--cov=core",
+    "--cov=cli",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml:coverage.xml",
+    "--cov-fail-under=80",
+    "--tb=short",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "openai: marks tests that require OpenAI API (mocked in tests)",
+    "unit: marks tests as unit tests",
+    "cli: marks tests as CLI tests",
+]
+filterwarnings = [
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning:pkg_resources.*",
+    "ignore::pytest.PytestUnraisableExceptionWarning",
+]
+
+[tool.coverage.run]
+source = ["core", "cli"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/.*",
+    "*/venv/*",
+    "*/.venv/*",
+    "setup.py",
+    "conftest.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError", 
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+show_missing = true
+precision = 2
+
+[tool.coverage.html]
+directory = "htmlcov"
+title = "Simtune Test Coverage"
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv", "build", "dist"]
+skips = [
+    "B101",  # assert_used - we use asserts in tests
+    "B601",  # paramiko_calls - not applicable
+    "B602",  # subprocess_popen_with_shell_equals_true - we control the shell commands
+]
+
+[tool.bandit.any_other_function_with_shell_equals_true]
+no_shell = [
+    "os.execl",
+    "os.execle", 
+    "os.execlp",
+    "os.execlpe",
+    "os.execv",
+    "os.execve",
+    "os.execvp",
+    "os.execvpe",
+    "os.spawnl",
+    "os.spawnle",
+    "os.spawnlp",
+    "os.spawnlpe",
+    "os.spawnv",
+    "os.spawnve",
+    "os.spawnvp",
+    "os.spawnvpe",
+    "os.startfile"
+]
+shell = [
+    "os.system",
+    "os.popen",
+    "os.popen2",
+    "os.popen3",
+    "os.popen4",
+    "popen2.popen2",
+    "popen2.popen3",
+    "popen2.popen4",
+    "popen2.Popen3",
+    "popen2.Popen4",
+    "commands.getoutput",
+    "commands.getstatusoutput"
+]
+subprocess = [
+    "subprocess.Popen",
+    "subprocess.call",
+    "subprocess.check_call", 
+    "subprocess.check_output"
+]
