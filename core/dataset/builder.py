@@ -1029,22 +1029,27 @@ class DatasetBuilder:
 
         # Try different splitting strategies based on content patterns
 
+        # Precompute matches to keep logic clear and avoid static analysis false-positives
+        has_section_headers = bool(
+            re.search(r"^\s*(Chapter|Section|\d+\.)", content, re.MULTILINE | re.IGNORECASE)
+        )
+        has_md_headers = bool(re.search(r"^#+\s", content, re.MULTILINE))
+        has_list_markers = bool(re.search(r"^\s*[\d•\-\*]\s", content, re.MULTILINE))
+
         # Strategy 1: Look for clear section markers
-        if re.search(
-            r"^\s*(Chapter|Section|\d+\.)", content, re.MULTILINE | re.IGNORECASE
-        ):
+        if has_section_headers:
             # Split on chapter/section headers
             sections = re.split(
                 r"\n(?=\s*(?:Chapter|Section|\d+\.)\s)", content, flags=re.IGNORECASE
             )
 
         # Strategy 2: Look for markdown-style headers
-        elif re.search(r"^#+\s", content, re.MULTILINE):
+        elif has_md_headers:
             # Split on markdown headers
             sections = re.split(r"\n(?=#+\s)", content)
 
         # Strategy 3: Look for numbered lists or bullet points
-        elif re.search(r"^\s*[\d•\-\*]\s", content, re.MULTILINE):
+        elif has_list_markers:
             # More conservative split to avoid breaking lists
             sections = re.split(r"\n\s*\n\s*(?=\S)", content)
 
