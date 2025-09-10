@@ -1,4 +1,4 @@
-# Simtune - How to Train Your Dragon (or fine tune an LLM)
+# How to Train Your Dragon (or fine tune an LLM)
 
 Simtune is a tool that empowers non technical users to create their own personalised expert AI.
 It helps you finetune a language model so it ingests your knowledge base and becomes an expert in your domain.
