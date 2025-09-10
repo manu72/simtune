@@ -1031,7 +1031,9 @@ class DatasetBuilder:
 
         # Precompute matches to keep logic clear and avoid static analysis false-positives
         has_section_headers = bool(
-            re.search(r"^\s*(Chapter|Section|\d+\.)", content, re.MULTILINE | re.IGNORECASE)
+            re.search(
+                r"^\s*(Chapter|Section|\d+\.)", content, re.MULTILINE | re.IGNORECASE
+            )
         )
         has_md_headers = bool(re.search(r"^#+\s", content, re.MULTILINE))
         has_list_markers = bool(re.search(r"^\s*[\d•\-\*]\s", content, re.MULTILINE))
