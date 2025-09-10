@@ -206,14 +206,23 @@ python -m cli.main knowledge search <expert_id> "query"
 python -m cli.main knowledge generate-dataset <expert_id>
 ```
 
-### Dataset Building (Legacy)
+### Dataset Building
 
 ```bash
 # Build training dataset interactively
 python -m cli.main dataset build <expert_id>
 
-# Import examples from files
+# Import examples from text files (supports drag & drop)
 python -m cli.main dataset import <expert_id> <file_path>
+
+# Validate training dataset 
+python -m cli.main dataset validate <expert_id>
+
+# Show dataset statistics
+python -m cli.main dataset show <expert_id>
+
+# Export dataset to JSONL
+python -m cli.main dataset export <expert_id> --output dataset.jsonl
 ```
 
 ### Domain Expert Fine-tuning
