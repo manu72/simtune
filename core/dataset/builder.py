@@ -37,9 +37,9 @@ class DatasetBuilder:
             )
 
             choices = [
-                "1. Add examples from writing samples",
+                "1. Add examples from writing samples (paste text)",
                 "2. Generate examples from prompts",
-                "3. Import from text file",
+                "3. Import from text file (📁 drag & drop supported)",
                 "4. Review current dataset",
                 "5. Generate more examples from existing examples",
                 "6. Save and exit",
@@ -705,7 +705,25 @@ class DatasetBuilder:
         return examples
 
     def _import_from_file(self) -> None:
-        file_path = Prompt.ask("Enter the path to your text file")
+        console.print("\n[bold blue]📁 Import from Text File[/bold blue]")
+        console.print(
+            "[dim]💡 Tip: You can drag and drop a file into your terminal to get its path[/dim]"
+        )
+
+        file_path = Prompt.ask(
+            "Enter the path to your text file",
+            default="",
+        ).strip()
+
+        # Handle common issues with file paths
+        if file_path.startswith("'") and file_path.endswith("'"):
+            file_path = file_path[1:-1]  # Remove single quotes
+        elif file_path.startswith('"') and file_path.endswith('"'):
+            file_path = file_path[1:-1]  # Remove double quotes
+
+        # Expand user home directory if needed
+        file_path = file_path.replace("~", str(Path.home()))
+
         path = Path(file_path)
 
         if not path.exists():
@@ -713,29 +731,95 @@ class DatasetBuilder:
             return
 
         try:
-            with open(path, "r", encoding="utf-8") as f:
-                content = f.read().strip()
+            # Check file size first
+            file_size = path.stat().st_size
+            if file_size > 10 * 1024 * 1024:  # 10MB limit
+                console.print(
+                    f"[red]File is too large ({file_size / (1024*1024):.1f}MB). "
+                    "Please use files smaller than 10MB[/red]"
+                )
+                return
+
+            console.print(f"[blue]📖 Reading file... ({file_size / 1024:.1f}KB)[/blue]")
+
+            # Try different encodings
+            content = ""
+            encodings = ["utf-8", "utf-8-sig", "latin1", "cp1252"]
+
+            for encoding in encodings:
+                try:
+                    with open(path, "r", encoding=encoding) as f:
+                        content = f.read().strip()
+                    console.print(
+                        f"[dim]Successfully read with {encoding} encoding[/dim]"
+                    )
+                    break
+                except UnicodeDecodeError:
+                    continue
 
             if not content:
-                console.print("[red]File is empty[/red]")
+                console.print(
+                    "[red]Could not read file or file is empty. Please ensure it's a text file "
+                    "with UTF-8, Latin1, or CP1252 encoding.[/red]"
+                )
                 return
+
+            console.print(
+                f"[green]✅ File loaded successfully ({len(content)} characters)[/green]"
+            )
 
             sections = self._split_content(content)
             console.print(f"[green]Found {len(sections)} sections in the file[/green]")
 
-            for i, section in enumerate(sections):
-                if len(section) < 50:  # Skip very short sections
-                    continue
+            if len(sections) > 20:
+                console.print(
+                    f"[yellow]⚠️  Large number of sections ({len(sections)}). "
+                    "Consider breaking this into smaller files for better management.[/yellow]"
+                )
 
-                console.print(f"\n[yellow]Section {i+1}:[/yellow]")
-                console.print(section[:200] + "..." if len(section) > 200 else section)
+            # Process sections with better UX for large files
+            sections_to_process = [
+                (i, section) for i, section in enumerate(sections) if len(section) >= 30
+            ]
 
-                if Confirm.ask("Include this section?"):
+            if len(sections_to_process) > 10:
+                console.print(
+                    f"[yellow]⚠️  Found {len(sections_to_process)} sections to review.[/yellow]"
+                )
+                batch_mode = Confirm.ask(
+                    "Would you like to process sections in batches of 10? (recommended for large files)"
+                )
+            else:
+                batch_mode = False
+
+            accepted_count = 0
+            skipped_count = 0
+
+            for idx, (i, section) in enumerate(sections_to_process):
+                if batch_mode and idx > 0 and idx % 10 == 0:
+                    if not Confirm.ask(
+                        f"Continue processing? (Processed {idx}, {len(sections_to_process) - idx} remaining)"
+                    ):
+                        break
+
+                console.print(
+                    f"\n[yellow]Section {i+1}/{len(sections)} ({len(section)} chars):[/yellow]"
+                )
+                # Show more context for longer sections
+                preview_length = 300 if len(section) > 500 else 200
+                console.print(
+                    section[:preview_length] + "..."
+                    if len(section) > preview_length
+                    else section
+                )
+
+                if Confirm.ask("Include this section?", default=True):
                     prompt = self._collect_prompt_for_content(section)
                     if not prompt or not prompt.strip():
                         console.print(
                             "[yellow]Skipping section - no prompt provided[/yellow]"
                         )
+                        skipped_count += 1
                         continue
 
                     example = TrainingExample(
@@ -763,19 +847,242 @@ class DatasetBuilder:
                         )
 
                     self.dataset.add_example(example)
-                    console.print("[green]Added![/green]")
+                    accepted_count += 1
+                    console.print("[green]✅ Added![/green]")
+                else:
+                    skipped_count += 1
+                    console.print("[dim]⏭️  Skipped[/dim]")
+
+            # Import summary
+            console.print(f"\n[bold green]📊 Import Summary:[/bold green]")
+            console.print(f"  • Accepted: {accepted_count} sections")
+            console.print(f"  • Skipped: {skipped_count} sections")
+            console.print(f"  • Dataset size: {self.dataset.size} examples")
+
+            if accepted_count > 0:
+                console.print("[green]🎉 Import completed successfully![/green]")
+            else:
+                console.print("[yellow]No sections were added to the dataset.[/yellow]")
+
+        except Exception as e:
+            console.print(f"[red]Error reading file: {e}[/red]")
+
+    def _import_from_file_direct(self, path: Path) -> None:
+        """Import from a file path directly without prompting for path."""
+        console.print("\n[bold blue]📁 Import from Text File[/bold blue]")
+
+        if not path.exists():
+            console.print(f"[red]File not found: {path}[/red]")
+            return
+
+        try:
+            # Check file size first
+            file_size = path.stat().st_size
+            if file_size > 10 * 1024 * 1024:  # 10MB limit
+                console.print(
+                    f"[red]File is too large ({file_size / (1024*1024):.1f}MB). "
+                    "Please use files smaller than 10MB[/red]"
+                )
+                return
+
+            console.print(f"[blue]📖 Reading file... ({file_size / 1024:.1f}KB)[/blue]")
+
+            # Try different encodings
+            content = ""
+            encodings = ["utf-8", "utf-8-sig", "latin1", "cp1252"]
+
+            for encoding in encodings:
+                try:
+                    with open(path, "r", encoding=encoding) as f:
+                        content = f.read().strip()
+                    console.print(
+                        f"[dim]Successfully read with {encoding} encoding[/dim]"
+                    )
+                    break
+                except UnicodeDecodeError:
+                    continue
+
+            if not content:
+                console.print(
+                    "[red]Could not read file or file is empty. Please ensure it's a text file "
+                    "with UTF-8, Latin1, or CP1252 encoding.[/red]"
+                )
+                return
 
             console.print(
-                f"[green]Import complete! Dataset now has {self.dataset.size} examples[/green]"
+                f"[green]✅ File loaded successfully ({len(content)} characters)[/green]"
             )
+
+            sections = self._split_content(content)
+            console.print(f"[green]Found {len(sections)} sections in the file[/green]")
+
+            if len(sections) > 20:
+                console.print(
+                    f"[yellow]⚠️  Large number of sections ({len(sections)}). "
+                    "Consider breaking this into smaller files for better management.[/yellow]"
+                )
+
+            # Process sections with better UX for large files
+            sections_to_process = [
+                (i, section) for i, section in enumerate(sections) if len(section) >= 30
+            ]
+
+            if len(sections_to_process) > 10:
+                console.print(
+                    f"[yellow]⚠️  Found {len(sections_to_process)} sections to review.[/yellow]"
+                )
+                from rich.prompt import Confirm
+
+                batch_mode = Confirm.ask(
+                    "Would you like to process sections in batches of 10? (recommended for large files)"
+                )
+            else:
+                batch_mode = False
+
+            accepted_count = 0
+            skipped_count = 0
+
+            for idx, (i, section) in enumerate(sections_to_process):
+                if batch_mode and idx > 0 and idx % 10 == 0:
+                    from rich.prompt import Confirm
+
+                    if not Confirm.ask(
+                        f"Continue processing? (Processed {idx}, {len(sections_to_process) - idx} remaining)"
+                    ):
+                        break
+
+                console.print(
+                    f"\n[yellow]Section {i+1}/{len(sections)} ({len(section)} chars):[/yellow]"
+                )
+                # Show more context for longer sections
+                preview_length = 300 if len(section) > 500 else 200
+                console.print(
+                    section[:preview_length] + "..."
+                    if len(section) > preview_length
+                    else section
+                )
+
+                from rich.prompt import Confirm
+
+                if Confirm.ask("Include this section?", default=True):
+                    prompt = self._collect_prompt_for_content(section)
+                    if not prompt or not prompt.strip():
+                        console.print(
+                            "[yellow]Skipping section - no prompt provided[/yellow]"
+                        )
+                        skipped_count += 1
+                        continue
+
+                    example = TrainingExample(
+                        messages=[
+                            {
+                                "role": "system",
+                                "content": "You are a helpful writing assistant.",
+                            },
+                            {"role": "user", "content": prompt},
+                            {"role": "assistant", "content": section},
+                        ]
+                    )
+
+                    # Save as markdown file
+                    try:
+                        markdown_path = self.storage.save_example_as_markdown(
+                            prompt=prompt, response=section, example_type="user"
+                        )
+                        console.print(
+                            f"[dim]Saved markdown: {markdown_path.name}[/dim]"
+                        )
+                    except Exception as e:
+                        console.print(
+                            f"[yellow]Warning: Could not save markdown file: {e}[/yellow]"
+                        )
+
+                    self.dataset.add_example(example)
+                    accepted_count += 1
+                    console.print("[green]✅ Added![/green]")
+                else:
+                    skipped_count += 1
+                    console.print("[dim]⏭️  Skipped[/dim]")
+
+            # Import summary
+            console.print(f"\n[bold green]📊 Import Summary:[/bold green]")
+            console.print(f"  • Accepted: {accepted_count} sections")
+            console.print(f"  • Skipped: {skipped_count} sections")
+            console.print(f"  • Dataset size: {self.dataset.size} examples")
+
+            # Save the dataset
+            if accepted_count > 0:
+                self.storage.save_dataset(self.dataset)
+                console.print(
+                    "[green]🎉 Import completed successfully and dataset saved![/green]"
+                )
+            else:
+                console.print("[yellow]No sections were added to the dataset.[/yellow]")
 
         except Exception as e:
             console.print(f"[red]Error reading file: {e}[/red]")
 
     def _split_content(self, content: str) -> List[str]:
-        # Split on common paragraph separators
-        sections = re.split(r"\n\s*\n", content)
-        return [section.strip() for section in sections if section.strip()]
+        """Split content into manageable sections based on natural breaks."""
+        # Remove excessive whitespace while preserving structure
+        content = re.sub(r"\n\s*\n\s*\n+", "\n\n", content)
+
+        # Try different splitting strategies based on content patterns
+
+        # Strategy 1: Look for clear section markers
+        if re.search(
+            r"^\s*(Chapter|Section|\d+\.)", content, re.MULTILINE | re.IGNORECASE
+        ):
+            # Split on chapter/section headers
+            sections = re.split(
+                r"\n(?=\s*(?:Chapter|Section|\d+\.)\s)", content, flags=re.IGNORECASE
+            )
+
+        # Strategy 2: Look for markdown-style headers
+        elif re.search(r"^#+\s", content, re.MULTILINE):
+            # Split on markdown headers
+            sections = re.split(r"\n(?=#+\s)", content)
+
+        # Strategy 3: Look for numbered lists or bullet points
+        elif re.search(r"^\s*[\d•\-\*]\s", content, re.MULTILINE):
+            # More conservative split to avoid breaking lists
+            sections = re.split(r"\n\s*\n\s*(?=\S)", content)
+
+        # Strategy 4: Default paragraph-based splitting
+        else:
+            # Split on double newlines (paragraph breaks)
+            sections = re.split(r"\n\s*\n", content)
+
+        # Clean up sections
+        cleaned_sections = []
+        for section in sections:
+            section = section.strip()
+            if (
+                section and len(section) >= 5
+            ):  # Minimum meaningful length - very permissive for backward compatibility
+                cleaned_sections.append(section)
+
+        # If we got too few sections, try a more aggressive split
+        if len(cleaned_sections) < 2 and len(content) > 1000:
+            # Split on sentence boundaries for very long single sections
+            sentences = re.split(r"(?<=[.!?])\s+(?=[A-Z])", content)
+
+            # Group sentences into paragraphs of reasonable size
+            current_section = ""
+            for sentence in sentences:
+                if (
+                    len(current_section) + len(sentence) > 500
+                ):  # Target ~500 chars per section
+                    if current_section.strip():
+                        cleaned_sections.append(current_section.strip())
+                    current_section = sentence
+                else:
+                    current_section += " " + sentence if current_section else sentence
+
+            if current_section.strip():
+                cleaned_sections.append(current_section.strip())
+
+        return cleaned_sections
 
     def _review_dataset(self) -> None:
         if self.dataset.size == 0:

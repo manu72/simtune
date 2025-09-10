@@ -158,6 +158,41 @@ def clear_dataset(
         console.print("Cancelled.")
 
 
+@dataset_app.command("import")
+def import_from_file(
+    author_id: str = typer.Argument(..., help="Author ID to import dataset for"),
+    file_path: str = typer.Argument(..., help="Path to the text file to import"),
+):
+    """📁 Import training examples from a text file."""
+
+    profile = get_author_profile(author_id)
+    if not profile:
+        console.print(f"[red]Author '{author_id}' not found.[/red]")
+        console.print("Use 'simtune author create' to create an author first.")
+        raise typer.Exit(1)
+
+    from pathlib import Path
+
+    # Handle file path cleaning
+    file_path = file_path.strip()
+    if file_path.startswith("'") and file_path.endswith("'"):
+        file_path = file_path[1:-1]
+    elif file_path.startswith('"') and file_path.endswith('"'):
+        file_path = file_path[1:-1]
+    file_path = file_path.replace("~", str(Path.home()))
+
+    path = Path(file_path)
+    if not path.exists():
+        console.print(f"[red]File not found: {file_path}[/red]")
+        raise typer.Exit(1)
+
+    console.print(f"[bold blue]Importing from file for: {profile.name}[/bold blue]")
+
+    builder = DatasetBuilder(author_id)
+    # Call the import method directly with the file path
+    builder._import_from_file_direct(path)
+
+
 @dataset_app.command("export")
 def export_dataset(
     author_id: str = typer.Argument(..., help="Author ID to export dataset for"),

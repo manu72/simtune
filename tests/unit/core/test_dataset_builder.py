@@ -287,9 +287,12 @@ Another valid paragraph.
         with patch("core.storage.settings", mock_settings):
             builder = DatasetBuilder("test_author")
 
-            # Mock Path behavior
+            # Mock Path behavior with file size
             mock_path = Mock()
             mock_path.exists.return_value = True
+            mock_stat = Mock()
+            mock_stat.st_size = 1000  # 1KB file size
+            mock_path.stat.return_value = mock_stat
             mock_path_class.return_value = mock_path
 
             # Mock user inputs for new workflow
@@ -351,9 +354,12 @@ Another valid paragraph.
         with patch("core.storage.settings", mock_settings):
             builder = DatasetBuilder("test_author")
 
-            # Mock Path behavior
+            # Mock Path behavior with file size
             mock_path = Mock()
             mock_path.exists.return_value = True
+            mock_stat = Mock()
+            mock_stat.st_size = 100  # Small file size
+            mock_path.stat.return_value = mock_stat
             mock_path_class.return_value = mock_path
 
             mock_prompt.ask.return_value = "/path/to/empty.txt"
@@ -363,7 +369,11 @@ Another valid paragraph.
 
             # Should not add any examples
             assert builder.dataset.size == initial_size
-            mock_console.print.assert_called_with("[red]File is empty[/red]")
+            # Check that an appropriate error message was shown (could be empty file or read error)
+            mock_console.print.assert_any_call(
+                "[red]Could not read file or file is empty. Please ensure it's a text file "
+                "with UTF-8, Latin1, or CP1252 encoding.[/red]"
+            )
 
     @patch("core.dataset.builder.console")
     @patch("core.dataset.builder.Prompt")
@@ -382,9 +392,12 @@ Another valid paragraph.
         with patch("core.storage.settings", mock_settings):
             builder = DatasetBuilder("test_author")
 
-            # Mock Path behavior
+            # Mock Path behavior with file size
             mock_path = Mock()
             mock_path.exists.return_value = True
+            mock_stat = Mock()
+            mock_stat.st_size = 1000  # Normal file size
+            mock_path.stat.return_value = mock_stat
             mock_path_class.return_value = mock_path
 
             mock_prompt.ask.return_value = "/path/to/restricted.txt"

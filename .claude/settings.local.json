@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(source:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(make:*)"
     ],
     "deny": [],
     "ask": []
