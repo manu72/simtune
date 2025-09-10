@@ -72,9 +72,9 @@ python -m cli.main dataset build my_author
 
 This opens an interactive menu where you can:
 
-1. **Add examples from writing samples** - Paste your existing writing and get AI-suggested prompts
+1. **Add examples from writing samples (paste text)** - Paste your existing writing and get AI-suggested prompts
 2. **Generate examples from prompts** - Create prompt/response pairs
-3. **Import from text file** - Upload a text file to extract examples with AI prompt assistance
+3. **Import from text file (📁 drag & drop supported)** - Upload a text file to extract examples with enhanced file handling
 4. **Review current dataset** - See what examples you have so far
 5. **Generate more examples from existing examples** - Use AI to create additional examples based on your existing ones (requires OpenAI API)
 
@@ -106,6 +106,84 @@ AI suggests: "Write practical tips for maintaining productivity while working fr
 
 You can: Accept, edit to "Write 3-5 practical tips for remote work productivity", or write manually
 ```
+
+### Step 2.3: File Upload Features
+
+Simtune provides multiple ways to import text files for dataset building:
+
+#### Interactive File Import (Option 3 in dataset builder)
+
+Enhanced file handling with:
+
+- **Drag & Drop Support**: Drop files into your terminal to auto-populate the file path
+- **Smart Path Handling**: Automatically handles quoted paths, home directory expansion (~)
+- **Multiple Encoding Support**: UTF-8, UTF-8-BOM, Latin1, CP1252
+- **File Size Validation**: 10MB limit with clear error messages
+- **Intelligent Content Splitting**: Detects document structure (chapters, headers, lists)
+- **Batch Processing**: For files with >10 sections, processes in manageable batches
+- **Progress Tracking**: Shows file size, character count, and section analysis
+
+#### Direct CLI Import Command
+
+For power users, import files directly from the command line:
+
+```bash
+python -m cli.main dataset import my_author "/path/to/my_writing.txt"
+```
+
+**Features:**
+- **Supports File Paths**: Handles quoted paths and special characters
+- **Smart Content Processing**: Automatically detects and splits content
+- **Interactive Review**: Review and select which sections to include
+- **AI Prompt Assistance**: Each section gets AI-suggested prompts (optional)
+- **Automatic Saving**: Dataset is saved automatically after successful import
+
+#### File Processing Intelligence
+
+Simtune intelligently processes different document types:
+
+**Chapter/Section Documents:**
+```
+Chapter 1: Introduction
+This is the first chapter content...
+
+Chapter 2: Methods
+This covers the methodology...
+```
+
+**Markdown Documents:**
+```
+# Header 1
+Content under first header...
+
+## Header 2
+Content under second header...
+```
+
+**List-Based Documents:**
+```
+1. First point with explanation
+2. Second point with details
+• Bullet point content
+• More bullet points
+```
+
+**Regular Paragraphs:**
+```
+First paragraph of content.
+
+Second paragraph after line break.
+
+Third paragraph continues...
+```
+
+#### Usage Tips
+
+1. **Prepare Your Files**: Clean up your text files before importing
+2. **Use Drag & Drop**: Simply drag files from your file manager to the terminal
+3. **Batch Processing**: For large files, use batch mode to process sections in groups
+4. **Quality Over Quantity**: Review each section - skip irrelevant parts
+5. **Mix Input Methods**: Combine file imports with manual examples for best results
 
 ### Step 2.5: Generate More Examples with AI (Optional)
 
@@ -244,10 +322,38 @@ python -m cli.main dataset show my_author
 4. Verify generated examples maintain style consistency
 5. Test with insufficient examples (< 2) to see error handling
 
-### Scenario 5: Dataset Management
+### Scenario 5: File Upload and Import Features
+
+1. **Test Interactive File Import (Option 3)**:
+   - Create a test text file with multiple paragraphs
+   - Use drag & drop to get file path in terminal
+   - Test different document structures (chapters, headers, lists)
+   - Try batch processing with files containing >10 sections
+   - Test file size limits with very large files
+
+2. **Test Direct CLI Import**:
+   - Use `python -m cli.main dataset import my_author /path/to/file.txt`
+   - Test with quoted file paths and special characters
+   - Try home directory expansion with `~/Documents/file.txt`
+   - Test error handling with non-existent files
+
+3. **Test Different File Types**:
+   - Plain text files with paragraph breaks
+   - Markdown files with headers
+   - Document with chapter/section structure
+   - List-based content (numbered and bulleted)
+   - Test encoding support (UTF-8, Latin1, etc.)
+
+4. **Test Content Processing**:
+   - Verify intelligent section splitting
+   - Check minimum section length filtering
+   - Test AI prompt suggestions for imported sections
+   - Verify import summary and statistics
+
+### Scenario 6: Dataset Management
 
 1. Create multiple authors with different styles
-2. Test dataset import from text files
+2. Test dataset import from text files using both methods
 3. Clear and rebuild datasets
 4. Export datasets to JSONL format
 5. Test AI generation with different types of existing examples
@@ -325,12 +431,13 @@ Fine-tuning costs with OpenAI (as of 2024):
 The Stage 1 POC is working correctly if:
 
 1. ✅ You can create an author profile in under 5 minutes
-2. ✅ Dataset building is intuitive and supports multiple input methods
-3. ✅ Validation provides clear feedback on dataset quality
-4. ✅ Fine-tuning completes without technical errors
-5. ✅ Generated content noticeably reflects the input writing style
-6. ✅ Error messages are helpful and actionable
-7. ✅ The complete workflow takes under 30 minutes (excluding training time)
+2. ✅ Dataset building is intuitive and supports multiple input methods including drag & drop file uploads
+3. ✅ File imports handle different document structures intelligently
+4. ✅ Validation provides clear feedback on dataset quality
+5. ✅ Fine-tuning completes without technical errors
+6. ✅ Generated content noticeably reflects the input writing style
+7. ✅ Error messages are helpful and actionable
+8. ✅ The complete workflow takes under 30 minutes (excluding training time)
 
 ---
 
